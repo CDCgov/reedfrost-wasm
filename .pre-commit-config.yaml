@@ -1,0 +1,40 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-yaml
+      - id: check-toml
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: ["--baseline", ".secrets.baseline"]
+        exclude: package.lock.json
+  - repo: local
+    hooks:
+      - id: clippy
+        name: clippy
+        description: Lint rust files
+        entry: cargo clippy
+        args: ["--", "-D", "warnings"]
+        language: system
+        types: [rust]
+        pass_filenames: false
+      - id: cargo-check
+        name: cargo check
+        description: Check the rust package
+        entry: cargo check
+        language: system
+        types: [rust]
+        pass_filenames: false
+      - id: cargo-fmt
+        name: cargo fmt
+        description: Format rust files
+        entry: cargo fmt
+        args: ["--"]
+        language: system
+        types: [rust]
