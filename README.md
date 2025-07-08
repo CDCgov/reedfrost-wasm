@@ -6,7 +6,14 @@ A Rust implementation of <https://github.com/cdcgov/reedfrost>
 
 ## Getting started
 
-TBD
+### For developers
+
+- Install system dependencies
+  - Rust toolchain
+  - [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
+  - [node](https://nodejs.org/en/download)
+  - [pnpm](https://pnpm.io/installation)
+- `wasm-pack build`
 
 ## Project admins
 

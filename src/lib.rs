@@ -1,16 +1,30 @@
 use probability::distribution::Binomial;
 use probability::distribution::Discrete;
+use wasm_bindgen::prelude::*;
 
-fn main() {
+#[wasm_bindgen]
+// JavaScript alert function
+extern "C" {
+    fn alert(s: &str);
+}
+
+#[wasm_bindgen]
+// Display a random result
+pub fn greet() {
     let s = 10;
     let i = 1;
     let p = 0.1;
     let s_inf = 5;
-    println!(
-        "Probability of final size {}: {}",
+    let greeting = format!(
+        "Given {} susceptibles, {} infected, and a transmission probability of {}, \
+        probability of {} remaining susceptibles is: {}",
+        s,
+        i,
+        p,
         s_inf,
         pdf(s_inf, s, i, p)
     );
+    alert(&greeting);
 }
 
 /// Probability density function for Reed-Frost epidemic final sizes
