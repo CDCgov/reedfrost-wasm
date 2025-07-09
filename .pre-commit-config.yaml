@@ -38,3 +38,7 @@ repos:
         args: ["--"]
         language: system
         types: [rust]
+      - id: frontend
+        name: frontend
+        description: Run frontend linting
+        entry: npm run check

@@ -2,7 +2,13 @@
 name = "reedfrost"
 version = "0.1.0"
 edition = "2024"
+description = "A simple reed-frost model in Rust"
+license = "Apache-2.0"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 assert_approx_eq = "1.1.0"
 probability = "0.20.3"
+wasm-bindgen = "0.2.100"
