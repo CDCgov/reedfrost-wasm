@@ -40,5 +40,6 @@ repos:
         types: [rust]
       - id: frontend
         name: frontend
+        language: system
         description: Run frontend linting
-        entry: npm run check
+        entry: npm run format

@@ -8,7 +8,7 @@
     "dev": "npm run build:wasm && vite",
     "build": "npm run build:wasm && tsc -b frontend && vite build",
     "check": "tsc -b frontend && prettier . --check",
-    "format": "prettier frontend -w",
+    "format": "tsc -b frontend && prettier frontend -w",
     "preview": "vite preview"
   },
   "dependencies": {
