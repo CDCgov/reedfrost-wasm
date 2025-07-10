@@ -7,7 +7,7 @@
     "build:wasm": "wasm-pack build --target web",
     "dev": "npm run build:wasm && vite",
     "build": "npm run build:wasm && tsc -b frontend && vite build",
-    "check": "tsc -b frontend && prettier . --check",
+    "check": "tsc -b frontend && prettier frontend --check",
     "format": "tsc -b frontend && prettier frontend -w",
     "preview": "vite preview"
   },
