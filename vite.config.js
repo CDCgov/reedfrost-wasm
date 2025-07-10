@@ -10,6 +10,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      "@": path.resolve(import.meta.dirname, "src"),
       "@wasm": path.resolve(import.meta.dirname, "pkg"),
     },
   },
