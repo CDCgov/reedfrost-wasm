@@ -4,6 +4,8 @@ import Slider from "@mui/material/Slider";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import { Button } from "@mui/material";
+import Typography from "@mui/material/Typography";
+import { BarChart } from "@mui/x-charts/BarChart";
 
 type MySliderProps = {
   name: string;
@@ -12,20 +14,32 @@ type MySliderProps = {
   min: number;
   max: number;
   step: number;
+  valueFormatter?: (value: number) => string;
 };
 
-function MySlider({ name, value, setterFunc, min, max, step }: MySliderProps) {
+function MySlider({
+  name,
+  value,
+  setterFunc,
+  min,
+  max,
+  step,
+  valueFormatter = (x) => x.toString(),
+}: MySliderProps) {
   return (
     <Box>
-      {name}
+      <Typography id={`${name}-slider`}>{name}</Typography>
       <Grid container spacing={2}>
         <Grid size="grow">
           <Slider
+            aria-labelledby={`${name}-slider`}
             value={value}
             onChange={(_, newValue) => setterFunc(newValue)}
             min={min}
             max={max}
             step={step}
+            getAriaValueText={valueFormatter}
+            valueLabelDisplay="auto"
           />
         </Grid>
         <Grid>{value}</Grid>
@@ -34,24 +48,50 @@ function MySlider({ name, value, setterFunc, min, max, step }: MySliderProps) {
   );
 }
 
-function renderResult(result: number[] | null) {
+type PercentSliderProps = {
+  name: string;
+  value: number;
+  setterFunc: (value: number) => void;
+};
+
+function PercentSlider({ name, value, setterFunc }: PercentSliderProps) {
+  return (
+    <MySlider
+      name={name}
+      value={value}
+      setterFunc={setterFunc}
+      min={0.0}
+      max={1.0}
+      step={0.01}
+      valueFormatter={(x) => `${x * 100}%`}
+    />
+  );
+}
+
+function renderResult(result: object[] | null) {
   if (result === null) {
     return <>No result</>;
   } else {
     return (
       <>
-        {result.map((element, index) => (
-          <p key={index}>
-            {index}: {element}
-          </p>
-        ))}
+        <BarChart
+          xAxis={[
+            {
+              label: "Final no. susceptibles",
+              data: result.map((r) => (r as any).k),
+            },
+          ]}
+          series={[{ data: result.map((r) => (r as any).pmf) }]}
+          height={300}
+          yAxis={[{ label: "Probability" }]}
+        />
       </>
     );
   }
 }
 
 function simShower() {
-  let [result, setResult] = useState<number[] | null>(null);
+  const [result, setResult] = useState<object[] | null>(null);
   const [s0, setS0] = useState<number>(10);
   const [i0, setI0] = useState<number>(1);
   const [prob, setProb] = useState<number>(0.1);
@@ -59,7 +99,7 @@ function simShower() {
   function runClick() {
     let newResult = [];
     for (let k = 0; k <= s0; k++) {
-      newResult.push(run(k, s0, i0, prob));
+      newResult.push({ k: k, pmf: run(k, s0, i0, prob) });
     }
     setResult(newResult);
   }
@@ -70,14 +110,8 @@ function simShower() {
 
   return (
     <>
-      <MySlider
-        name="Probability"
-        value={prob}
-        setterFunc={setProb}
-        min={0.0}
-        max={1.0}
-        step={0.01}
-      />
+      <Typography variant="h2">Parameters</Typography>
+      <PercentSlider name="Probability" value={prob} setterFunc={setProb} />
       <MySlider
         name="Initial S"
         value={s0}
@@ -100,7 +134,7 @@ function simShower() {
       <Button variant="outlined" onClick={resetClick}>
         Reset
       </Button>
-      <h2>Result</h2>
+      <Typography variant="h2">Result</Typography>
       {renderResult(result)}
     </>
   );
@@ -109,9 +143,9 @@ function simShower() {
 export function App() {
   return (
     <>
-      <h1>Simulation</h1>
+      <Typography variant="h1">Simulation</Typography>
       {simShower()}
-      <h1>End of app</h1>
+      <Typography variant="body1">End of app</Typography>
     </>
   );
 }
