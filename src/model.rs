@@ -1,20 +1,8 @@
 use probability::distribution::Binomial;
 use probability::distribution::Discrete;
 
-fn main() {
-    let s = 10;
-    let i = 1;
-    let p = 0.1;
-    let s_inf = 5;
-    println!(
-        "Probability of final size {}: {}",
-        s_inf,
-        pdf(s_inf, s, i, p)
-    );
-}
-
 /// Probability density function for Reed-Frost epidemic final sizes
-fn pdf(s_inf: usize, s: usize, i: usize, p: f64) -> f64 {
+pub fn pdf(s_inf: usize, s: usize, i: usize, p: f64) -> f64 {
     if (i == 0) & (s_inf == s) {
         1.0
     } else if ((i == 0) & (s_inf != s)) | ((i > 0) & (s < s_inf)) {
