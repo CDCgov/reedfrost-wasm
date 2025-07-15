@@ -128,15 +128,21 @@ function TrajectoryChart({
   let trajectories: object[] = [];
   for (let i = 0; i < n_trajectories; i++) {
     seed += 1;
+    let incidentTrajectory = Array.from(trajectory(s0, i0, prob, seed));
+
+    let x = 0;
+    let cumTrajectory = incidentTrajectory.map((y) => {
+      x += y;
+      return x;
+    });
+
     trajectories.push({
-      data: Array.from(trajectory(s0, i0, prob, seed)),
+      data: cumTrajectory,
       curve: "step",
-      seed: seed,
     });
   }
 
-  // return <LineChart series={trajectories} />;
-  return JSON.stringify(trajectories, null, 2); // For debugging purposes
+  return <LineChart series={trajectories} />;
 }
 
 function Simulation() {

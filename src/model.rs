@@ -1,6 +1,6 @@
 use memoize::memoize;
 use ordered_float::OrderedFloat;
-use probability::{distribution::Binomial as BinomialPMF, prelude::Discrete};
+use probability::distribution::{Binomial as BinomialPMF, Discrete};
 use rand::SeedableRng;
 use rand_distr::Distribution;
 
