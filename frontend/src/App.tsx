@@ -5,6 +5,7 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { BarChart } from "@mui/x-charts/BarChart";
+import type { BarItemIdentifier } from "@mui/x-charts";
 
 type MySliderProps = {
   name: string;
@@ -67,22 +68,46 @@ function PercentSlider(props: PercentSliderProps) {
 }
 
 function Chart({ s0, i0, prob }: { s0: number; i0: number; prob: number }) {
+  // Track which bars are clicked on. Change their color.
+  const [selectedBars, setSelectedBars] = useState<number[]>([]);
+
+  function barClickHander(_event: React.MouseEvent, barID: BarItemIdentifier) {
+    // If the bar is already selected, remove it from the selection
+    if (selectedBars.includes(barID.dataIndex)) {
+      setSelectedBars(selectedBars.filter((id) => id !== barID.dataIndex));
+    } else {
+      // otherwise, add it
+      setSelectedBars([...selectedBars, barID.dataIndex]);
+    }
+  }
+
   let result = [];
   for (let k = 0; k <= s0; k++) {
-    result.push({ k: k, pmf: run(k, s0, i0, prob) });
+    result.push({
+      k: k,
+      pmf: run(k, s0, i0, prob),
+    });
   }
 
   return (
     <BarChart
+      dataset={result}
       xAxis={[
         {
           label: "Final no. susceptibles",
-          data: result.map((r) => (r as any).k),
+          dataKey: "k",
+          // Clicked bars are red; others are default color
+          colorMap: {
+            type: "ordinal",
+            values: selectedBars,
+            colors: ["red"],
+          },
         },
       ]}
-      series={[{ data: result.map((r) => (r as any).pmf) }]}
-      height={300}
+      series={[{ dataKey: "pmf" }]}
       yAxis={[{ label: "Probability" }]}
+      height={300}
+      onItemClick={barClickHander}
     />
   );
 }
