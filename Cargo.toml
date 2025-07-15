@@ -10,5 +10,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 assert_approx_eq = "1.1.0"
+memoize = "0.5.1"
+ordered-float = "5.0.0"
 probability = "0.20.3"
 wasm-bindgen = "0.2.100"

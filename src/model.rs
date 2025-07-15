@@ -1,15 +1,22 @@
+use memoize::memoize;
+use ordered_float::OrderedFloat;
 use probability::distribution::Binomial;
 use probability::distribution::Discrete;
 
 /// Probability density function for Reed-Frost epidemic final sizes
 pub fn pdf(s_inf: usize, s: usize, i: usize, p: f64) -> f64 {
+    pdf_hash(s_inf, s, i, OrderedFloat(p))
+}
+
+#[memoize]
+fn pdf_hash(s_inf: usize, s: usize, i: usize, p: OrderedFloat<f64>) -> f64 {
     if (i == 0) & (s_inf == s) {
         1.0
     } else if ((i == 0) & (s_inf != s)) | ((i > 0) & (s < s_inf)) {
         0.0
     } else {
         (0..=(s - s_inf))
-            .map(|j| transition_probability(j, s, i, p) * pdf(s_inf, s - j, j, p))
+            .map(|j| transition_probability(j, s, i, p) * pdf_hash(s_inf, s - j, j, p))
             .sum()
     }
 }
@@ -17,8 +24,9 @@ pub fn pdf(s_inf: usize, s: usize, i: usize, p: f64) -> f64 {
 /// Reed-Frost transition probability. Given an epidemic with `s` susceptibles,
 /// `i` infected, and a probability `p` of transmission per contact, what is
 /// the probability that there will be `x` infected in the next generation?
-fn transition_probability(x: usize, s: usize, i: usize, p: f64) -> f64 {
-    Binomial::new(s, 1.0 - (1.0 - p).powi(i as i32)).mass(x)
+#[memoize]
+fn transition_probability(x: usize, s: usize, i: usize, p: OrderedFloat<f64>) -> f64 {
+    Binomial::new(s, 1.0 - (1.0 - p.into_inner()).powi(i as i32)).mass(x)
 }
 
 #[cfg(test)]
