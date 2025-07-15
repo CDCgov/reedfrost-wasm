@@ -1,4 +1,4 @@
-import { run } from "@wasm/reedfrost";
+import { pmf, trajectory } from "@wasm/reedfrost";
 import { useState } from "react";
 import Slider from "@mui/material/Slider";
 import Box from "@mui/material/Box";
@@ -6,6 +6,7 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { BarChart } from "@mui/x-charts/BarChart";
 import type { BarItemIdentifier } from "@mui/x-charts";
+import { LineChart } from "@mui/x-charts/LineChart";
 
 type MySliderProps = {
   name: string;
@@ -67,7 +68,7 @@ function PercentSlider(props: PercentSliderProps) {
   );
 }
 
-function Chart({ s0, i0, prob }: { s0: number; i0: number; prob: number }) {
+function PMFChart({ s0, i0, prob }: { s0: number; i0: number; prob: number }) {
   // Track which bars are clicked on. Change their color.
   const [selectedBars, setSelectedBars] = useState<number[]>([]);
 
@@ -85,7 +86,7 @@ function Chart({ s0, i0, prob }: { s0: number; i0: number; prob: number }) {
   for (let k = 0; k <= s0; k++) {
     result.push({
       k: k,
-      pmf: run(k, s0, i0, prob),
+      pmf: pmf(k, s0, i0, prob),
     });
   }
 
@@ -110,6 +111,32 @@ function Chart({ s0, i0, prob }: { s0: number; i0: number; prob: number }) {
       onItemClick={barClickHander}
     />
   );
+}
+
+function TrajectoryChart({
+  s0,
+  i0,
+  prob,
+}: {
+  s0: number;
+  i0: number;
+  prob: number;
+}) {
+  let seed = 44;
+  let n_trajectories = 10;
+
+  let trajectories: object[] = [];
+  for (let i = 0; i < n_trajectories; i++) {
+    seed += 1;
+    trajectories.push({
+      data: Array.from(trajectory(s0, i0, prob, seed)),
+      curve: "step",
+      seed: seed,
+    });
+  }
+
+  // return <LineChart series={trajectories} />;
+  return JSON.stringify(trajectories, null, 2); // For debugging purposes
 }
 
 function Simulation() {
@@ -138,7 +165,8 @@ function Simulation() {
         step={1}
       />
       <Typography variant="h2">Result</Typography>
-      <Chart s0={s0} i0={i0} prob={prob} />
+      <PMFChart s0={s0} i0={i0} prob={prob} />
+      <TrajectoryChart s0={s0} i0={i0} prob={prob} />
     </>
   );
 }
