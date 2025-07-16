@@ -5,7 +5,7 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { BarChart } from "@mui/x-charts/BarChart";
-import type { BarItemIdentifier } from "@mui/x-charts";
+import type { ChartsAxisData } from "@mui/x-charts";
 import { LineChart } from "@mui/x-charts/LineChart";
 
 type MySliderProps = {
@@ -81,31 +81,36 @@ function PMFChart({
   selectedBars: number[];
   setSelectedBars: (bars: number[]) => void;
 }) {
-  function barClickHander(_event: React.MouseEvent, barID: BarItemIdentifier) {
+  function handleClick(_event: MouseEvent, params: ChartsAxisData | null) {
+    let value = params === null ? -1 : (params.axisValue as number);
     // If the bar is already selected, remove it from the selection
-    if (selectedBars.includes(barID.dataIndex)) {
-      setSelectedBars(selectedBars.filter((id) => id !== barID.dataIndex));
+    if (selectedBars.includes(value)) {
+      setSelectedBars(selectedBars.filter((x) => x !== value));
     } else {
       // otherwise, add it
-      setSelectedBars([...selectedBars, barID.dataIndex]);
+      setSelectedBars([...selectedBars, value]);
     }
   }
 
   let result = [];
   for (let k = 0; k <= s0; k++) {
     result.push({
-      k: k,
+      s_inf: k,
+      // convert from final no. of susceptible to total no. of infections
+      cum_i_max: s0 - k + i0,
       pmf: pmf(k, s0, i0, prob),
     });
   }
+
+  result.sort((a, b) => a.cum_i_max - b.cum_i_max);
 
   return (
     <BarChart
       dataset={result}
       xAxis={[
         {
-          label: "Final no. susceptibles",
-          dataKey: "k",
+          label: "Total no. infections",
+          dataKey: "cum_i_max",
           // Clicked bars are red; others are default color
           colorMap: {
             type: "ordinal",
@@ -117,7 +122,7 @@ function PMFChart({
       series={[{ dataKey: "pmf" }]}
       yAxis={[{ label: "Probability" }]}
       height={300}
-      onItemClick={barClickHander}
+      onAxisClick={handleClick}
     />
   );
 }
@@ -126,12 +131,14 @@ function TrajectoryChart({
   s0,
   i0,
   prob,
+  jitter = 0.25,
   finalSizes = [],
 }: {
   s0: number;
   i0: number;
   prob: number;
-  finalSizes: number[];
+  jitter?: number;
+  finalSizes?: number[];
 }) {
   let seed = 44;
   let n_trajectories = 100;
@@ -147,23 +154,21 @@ function TrajectoryChart({
       return x;
     });
 
-    if (
-      finalSizes.length == 0 ||
-      finalSizes.includes(cumTrajectory[cumTrajectory.length - 1])
-    ) {
-      trajectories.push({
-        data: cumTrajectory,
-        curve: "step",
-        showMark: false,
-        color: "black",
-      });
-    }
+    trajectories.push({
+      data: cumTrajectory.map((x) => x + (Math.random() - 0.5) * jitter),
+      curve: "linear",
+      showMark: false,
+      color: finalSizes.includes(cumTrajectory[cumTrajectory.length - 1])
+        ? "red"
+        : "black",
+    });
   }
 
   return (
     <LineChart
       series={trajectories}
       slotProps={{ tooltip: { trigger: "none" } }}
+      height={500}
     />
   );
 }
