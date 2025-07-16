@@ -120,7 +120,12 @@ function PMFChart({
         },
       ]}
       series={[{ dataKey: "pmf" }]}
-      yAxis={[{ label: "Probability" }]}
+      yAxis={[
+        {
+          label: "Probability",
+          domainLimit: (_minValue, _maxValue) => ({ min: 0, max: 1 }),
+        },
+      ]}
       height={300}
       onAxisClick={handleClick}
     />
