@@ -68,10 +68,19 @@ function PercentSlider(props: PercentSliderProps) {
   );
 }
 
-function PMFChart({ s0, i0, prob }: { s0: number; i0: number; prob: number }) {
-  // Track which bars are clicked on. Change their color.
-  const [selectedBars, setSelectedBars] = useState<number[]>([]);
-
+function PMFChart({
+  s0,
+  i0,
+  prob,
+  selectedBars,
+  setSelectedBars,
+}: {
+  s0: number;
+  i0: number;
+  prob: number;
+  selectedBars: number[];
+  setSelectedBars: (bars: number[]) => void;
+}) {
   function barClickHander(_event: React.MouseEvent, barID: BarItemIdentifier) {
     // If the bar is already selected, remove it from the selection
     if (selectedBars.includes(barID.dataIndex)) {
@@ -117,13 +126,15 @@ function TrajectoryChart({
   s0,
   i0,
   prob,
+  finalSizes = [],
 }: {
   s0: number;
   i0: number;
   prob: number;
+  finalSizes: number[];
 }) {
   let seed = 44;
-  let n_trajectories = 10;
+  let n_trajectories = 100;
 
   let trajectories: object[] = [];
   for (let i = 0; i < n_trajectories; i++) {
@@ -136,19 +147,32 @@ function TrajectoryChart({
       return x;
     });
 
-    trajectories.push({
-      data: cumTrajectory,
-      curve: "step",
-    });
+    if (
+      finalSizes.length == 0 ||
+      finalSizes.includes(cumTrajectory[cumTrajectory.length - 1])
+    ) {
+      trajectories.push({
+        data: cumTrajectory,
+        curve: "step",
+        showMark: false,
+        color: "black",
+      });
+    }
   }
 
-  return <LineChart series={trajectories} />;
+  return (
+    <LineChart
+      series={trajectories}
+      slotProps={{ tooltip: { trigger: "none" } }}
+    />
+  );
 }
 
 function Simulation() {
   const [s0, setS0] = useState<number>(10);
   const [i0, setI0] = useState<number>(1);
   const [prob, setProb] = useState<number>(0.1);
+  const [selectedBars, setSelectedBars] = useState<number[]>([]);
 
   return (
     <>
@@ -171,8 +195,14 @@ function Simulation() {
         step={1}
       />
       <Typography variant="h2">Result</Typography>
-      <PMFChart s0={s0} i0={i0} prob={prob} />
-      <TrajectoryChart s0={s0} i0={i0} prob={prob} />
+      <PMFChart
+        s0={s0}
+        i0={i0}
+        prob={prob}
+        selectedBars={selectedBars}
+        setSelectedBars={setSelectedBars}
+      />
+      <TrajectoryChart s0={s0} i0={i0} prob={prob} finalSizes={selectedBars} />
     </>
   );
 }
