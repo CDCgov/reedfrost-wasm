@@ -1,22 +1,23 @@
 use memoize::memoize;
 use ordered_float::OrderedFloat;
-use probability::distribution::Binomial;
-use probability::distribution::Discrete;
+use probability::distribution::{Binomial as BinomialPMF, Discrete};
+use rand::SeedableRng;
+use rand_distr::Distribution;
 
-/// Probability density function for Reed-Frost epidemic final sizes
-pub fn pdf(s_inf: usize, s: usize, i: usize, p: f64) -> f64 {
-    pdf_hash(s_inf, s, i, OrderedFloat(p))
+/// Probability mass function for Reed-Frost epidemic final sizes
+pub fn pmf(s_inf: usize, s: usize, i: usize, p: f64) -> f64 {
+    pmf_hash(s_inf, s, i, OrderedFloat(p))
 }
 
 #[memoize]
-fn pdf_hash(s_inf: usize, s: usize, i: usize, p: OrderedFloat<f64>) -> f64 {
+fn pmf_hash(s_inf: usize, s: usize, i: usize, p: OrderedFloat<f64>) -> f64 {
     if (i == 0) & (s_inf == s) {
         1.0
     } else if ((i == 0) & (s_inf != s)) | ((i > 0) & (s < s_inf)) {
         0.0
     } else {
         (0..=(s - s_inf))
-            .map(|j| transition_probability(j, s, i, p) * pdf_hash(s_inf, s - j, j, p))
+            .map(|j| transition_probability(j, s, i, p) * pmf_hash(s_inf, s - j, j, p))
             .sum()
     }
 }
@@ -26,7 +27,31 @@ fn pdf_hash(s_inf: usize, s: usize, i: usize, p: OrderedFloat<f64>) -> f64 {
 /// the probability that there will be `x` infected in the next generation?
 #[memoize]
 fn transition_probability(x: usize, s: usize, i: usize, p: OrderedFloat<f64>) -> f64 {
-    Binomial::new(s, 1.0 - (1.0 - p.into_inner()).powi(i as i32)).mass(x)
+    BinomialPMF::new(s, 1.0 - (1.0 - p.into_inner()).powi(i as i32)).mass(x)
+}
+
+pub fn trajectory(s0: usize, i0: usize, p: f64, seed: u64) -> Vec<usize> {
+    let mut rng = rand::rngs::SmallRng::seed_from_u64(seed);
+
+    let mut it = vec![0; s0 + 1];
+    it[0] = i0;
+
+    let mut s = s0;
+
+    for t in 0..s0 {
+        if it[t] == 0 {
+            break;
+        }
+
+        let next_i = rand_distr::Binomial::new(s as u64, 1.0 - (1.0 - p).powi(it[t] as i32))
+            .unwrap()
+            .sample(&mut rng) as usize;
+
+        it[t + 1] = next_i;
+        s -= next_i;
+    }
+
+    it
 }
 
 #[cfg(test)]
@@ -38,18 +63,26 @@ mod tests {
     // Test trivial cases
     fn test_pdf_trivial() {
         // No infected and at final size
-        assert_eq!(pdf(10, 10, 0, 0.5), 1.0);
+        assert_eq!(pmf(10, 10, 0, 0.5), 1.0);
         // No infected and not at final size
-        assert_eq!(pdf(5, 10, 0, 0.5), 0.0);
-        assert_eq!(pdf(10, 5, 0, 0.5), 0.0);
+        assert_eq!(pmf(5, 10, 0, 0.5), 0.0);
+        assert_eq!(pmf(10, 5, 0, 0.5), 0.0);
         // Fewer susceptibles left than final
-        assert_eq!(pdf(10, 0, 1, 0.5), 0.0);
+        assert_eq!(pmf(10, 0, 1, 0.5), 0.0);
     }
 
     #[test]
     // Test specific examples
     fn test_pdf_cases() {
-        assert_approx_eq!(pdf(5, 10, 1, 0.05), 0.0152347);
-        assert_approx_eq!(pdf(3, 12, 2, 0.10), 0.1059780);
+        assert_approx_eq!(pmf(5, 10, 1, 0.05), 0.0152347);
+        assert_approx_eq!(pmf(3, 12, 2, 0.10), 0.1059780);
+    }
+
+    #[test]
+    // Simulation should give a certain length trajectory
+    fn test_trajectory_length() {
+        let s0 = 20;
+        let traj = trajectory(s0, 2, 0.5, 42);
+        assert_eq!(traj.len(), s0 + 1);
     }
 }

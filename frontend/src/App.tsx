@@ -1,10 +1,12 @@
-import { run } from "@wasm/reedfrost";
+import { pmf, trajectory } from "@wasm/reedfrost";
 import { useState } from "react";
 import Slider from "@mui/material/Slider";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { BarChart } from "@mui/x-charts/BarChart";
+import type { ChartsAxisData } from "@mui/x-charts";
+import { LineChart } from "@mui/x-charts/LineChart";
 
 type MySliderProps = {
   name: string;
@@ -66,23 +68,107 @@ function PercentSlider(props: PercentSliderProps) {
   );
 }
 
-function Chart({ s0, i0, prob }: { s0: number; i0: number; prob: number }) {
+function PMFChart({
+  s0,
+  i0,
+  prob,
+  selectedBars,
+  setSelectedBars,
+}: {
+  s0: number;
+  i0: number;
+  prob: number;
+  selectedBars: number[];
+  setSelectedBars: (bars: number[]) => void;
+}) {
+  function handleClick(_event: MouseEvent, params: ChartsAxisData | null) {
+    let value = params === null ? -1 : (params.axisValue as number);
+    // If the bar is already selected, remove it from the selection
+    if (selectedBars.includes(value)) {
+      setSelectedBars(selectedBars.filter((x) => x !== value));
+    } else {
+      // otherwise, add it
+      setSelectedBars([...selectedBars, value]);
+    }
+  }
+
   let result = [];
   for (let k = 0; k <= s0; k++) {
-    result.push({ k: k, pmf: run(k, s0, i0, prob) });
+    result.push({
+      s_inf: k,
+      // convert from final no. of susceptible to total no. of infections
+      cum_i_max: s0 - k + i0,
+      pmf: pmf(k, s0, i0, prob),
+    });
   }
+
+  result.sort((a, b) => a.cum_i_max - b.cum_i_max);
 
   return (
     <BarChart
+      dataset={result}
       xAxis={[
         {
-          label: "Final no. susceptibles",
-          data: result.map((r) => (r as any).k),
+          label: "Total no. infections",
+          dataKey: "cum_i_max",
+          // Clicked bars are red; others are default color
+          colorMap: {
+            type: "ordinal",
+            values: selectedBars,
+            colors: ["red"],
+          },
         },
       ]}
-      series={[{ data: result.map((r) => (r as any).pmf) }]}
-      height={300}
+      series={[{ dataKey: "pmf" }]}
       yAxis={[{ label: "Probability" }]}
+      height={300}
+      onAxisClick={handleClick}
+    />
+  );
+}
+
+function TrajectoryChart({
+  s0,
+  i0,
+  prob,
+  jitter = 0.25,
+  finalSizes = [],
+}: {
+  s0: number;
+  i0: number;
+  prob: number;
+  jitter?: number;
+  finalSizes?: number[];
+}) {
+  let seed = 44;
+  let n_trajectories = 100;
+
+  let trajectories: object[] = [];
+  for (let i = 0; i < n_trajectories; i++) {
+    seed += 1;
+    let incidentTrajectory = Array.from(trajectory(s0, i0, prob, seed));
+
+    let x = 0;
+    let cumTrajectory = incidentTrajectory.map((y) => {
+      x += y;
+      return x;
+    });
+
+    trajectories.push({
+      data: cumTrajectory.map((x) => x + (Math.random() - 0.5) * jitter),
+      curve: "linear",
+      showMark: false,
+      color: finalSizes.includes(cumTrajectory[cumTrajectory.length - 1])
+        ? "red"
+        : "black",
+    });
+  }
+
+  return (
+    <LineChart
+      series={trajectories}
+      slotProps={{ tooltip: { trigger: "none" } }}
+      height={500}
     />
   );
 }
@@ -91,6 +177,7 @@ function Simulation() {
   const [s0, setS0] = useState<number>(10);
   const [i0, setI0] = useState<number>(1);
   const [prob, setProb] = useState<number>(0.1);
+  const [selectedBars, setSelectedBars] = useState<number[]>([]);
 
   return (
     <>
@@ -113,7 +200,14 @@ function Simulation() {
         step={1}
       />
       <Typography variant="h2">Result</Typography>
-      <Chart s0={s0} i0={i0} prob={prob} />
+      <PMFChart
+        s0={s0}
+        i0={i0}
+        prob={prob}
+        selectedBars={selectedBars}
+        setSelectedBars={setSelectedBars}
+      />
+      <TrajectoryChart s0={s0} i0={i0} prob={prob} finalSizes={selectedBars} />
     </>
   );
 }
