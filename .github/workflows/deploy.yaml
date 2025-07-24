@@ -36,9 +36,7 @@ jobs:
           node-version: lts/*
           cache: "pnpm"
       - name: Install pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 8
+        run: npm install -g pnpm@latest-10
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Build
