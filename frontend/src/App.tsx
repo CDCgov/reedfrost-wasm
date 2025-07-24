@@ -5,7 +5,6 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { BarChart } from "@mui/x-charts/BarChart";
-import type { ChartsAxisData } from "@mui/x-charts";
 import { LineChart } from "@mui/x-charts/LineChart";
 
 type MySliderProps = {
@@ -81,8 +80,12 @@ function PMFChart({
   selectedBars: number[];
   setSelectedBars: (bars: number[]) => void;
 }) {
-  function handleClick(_event: MouseEvent, params: ChartsAxisData | null) {
-    let value = params === null ? -1 : (params.axisValue as number);
+  function handleHighlightChange(highlighted: { dataIndex?: number } | null) {
+    if (highlighted === null || highlighted.dataIndex === undefined) return;
+
+    let value = result[highlighted.dataIndex]?.cum_i_max;
+    if (value === undefined) return;
+
     // If the bar is already selected, remove it from the selection
     if (selectedBars.includes(value)) {
       setSelectedBars(selectedBars.filter((x) => x !== value));
@@ -92,7 +95,7 @@ function PMFChart({
     }
   }
 
-  let result = [];
+  let result: { s_inf: number; cum_i_max: number; pmf: number }[] = [];
   for (let k = 0; k <= s0; k++) {
     result.push({
       s_inf: k,
@@ -127,7 +130,7 @@ function PMFChart({
         },
       ]}
       height={300}
-      onAxisClick={handleClick}
+      onHighlightChange={handleHighlightChange}
     />
   );
 }
