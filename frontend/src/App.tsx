@@ -71,28 +71,28 @@ function PMFChart({
   s0,
   i0,
   prob,
-  selectedBars,
-  setSelectedBars,
+  highlightedBar,
+  setHighlightedBar,
 }: {
   s0: number;
   i0: number;
   prob: number;
-  selectedBars: number[];
-  setSelectedBars: (bars: number[]) => void;
+  highlightedBar: number | null;
+  setHighlightedBar: (bar: number | null) => void;
 }) {
   function handleHighlightChange(highlighted: { dataIndex?: number } | null) {
-    if (highlighted === null || highlighted.dataIndex === undefined) return;
+    if (highlighted === null || highlighted.dataIndex === undefined) {
+      setHighlightedBar(null);
+      return;
+    }
 
     let value = result[highlighted.dataIndex]?.cum_i_max;
-    if (value === undefined) return;
-
-    // If the bar is already selected, remove it from the selection
-    if (selectedBars.includes(value)) {
-      setSelectedBars(selectedBars.filter((x) => x !== value));
-    } else {
-      // otherwise, add it
-      setSelectedBars([...selectedBars, value]);
+    if (value === undefined) {
+      setHighlightedBar(null);
+      return;
     }
+
+    setHighlightedBar(value);
   }
 
   let result: { s_inf: number; cum_i_max: number; pmf: number }[] = [];
@@ -114,10 +114,10 @@ function PMFChart({
         {
           label: "Total no. infections",
           dataKey: "cum_i_max",
-          // Clicked bars are red; others are default color
+          // Highlighted bar is red; others are default color
           colorMap: {
             type: "ordinal",
-            values: selectedBars,
+            values: highlightedBar !== null ? [highlightedBar] : [],
             colors: ["red"],
           },
         },
@@ -136,20 +136,46 @@ function PMFChart({
 }
 
 function TrajectoryChart({
-  s0,
-  i0,
-  prob,
-  jitter = 0.25,
-  finalSizes = [],
+  trajectories,
+  highlight,
 }: {
-  s0: number;
-  i0: number;
-  prob: number;
-  jitter?: number;
-  finalSizes?: number[];
+  trajectories: any[];
+  highlight: number | null;
 }) {
+  const series = trajectories.map((trajectory) => ({
+    ...trajectory,
+    color:
+      highlight !== null &&
+      trajectory.raw_data[trajectory.raw_data.length - 1] === highlight
+        ? "red"
+        : "black",
+  }));
+
+  return (
+    <LineChart
+      series={series}
+      slotProps={{ tooltip: { trigger: "none" } }}
+      height={500}
+    />
+  );
+}
+
+function drawTrajectories(
+  s0: number,
+  i0: number,
+  prob: number,
+  jitter: number = 0.25,
+): object[] {
   let seed = 44;
   let n_trajectories = 100;
+
+  let jitter_seed = 44;
+
+  function jittered(x: number): number {
+    var y = Math.PI * (x ^ jitter_seed++);
+    y -= Math.floor(y);
+    return x + (y - 0.5) * jitter;
+  }
 
   let trajectories: object[] = [];
   for (let i = 0; i < n_trajectories; i++) {
@@ -163,29 +189,23 @@ function TrajectoryChart({
     });
 
     trajectories.push({
-      data: cumTrajectory.map((x) => x + (Math.random() - 0.5) * jitter),
+      raw_data: cumTrajectory,
+      data: cumTrajectory.map((x) => jittered(x)),
       curve: "linear",
       showMark: false,
-      color: finalSizes.includes(cumTrajectory[cumTrajectory.length - 1])
-        ? "red"
-        : "black",
     });
   }
 
-  return (
-    <LineChart
-      series={trajectories}
-      slotProps={{ tooltip: { trigger: "none" } }}
-      height={500}
-    />
-  );
+  return trajectories;
 }
 
 function Simulation() {
   const [s0, setS0] = useState<number>(10);
   const [i0, setI0] = useState<number>(1);
   const [prob, setProb] = useState<number>(0.1);
-  const [selectedBars, setSelectedBars] = useState<number[]>([]);
+  const [highlightedBar, setHighlightedBar] = useState<number | null>(null);
+
+  const trajectories = drawTrajectories(s0, i0, prob);
 
   return (
     <>
@@ -212,10 +232,10 @@ function Simulation() {
         s0={s0}
         i0={i0}
         prob={prob}
-        selectedBars={selectedBars}
-        setSelectedBars={setSelectedBars}
+        highlightedBar={highlightedBar}
+        setHighlightedBar={setHighlightedBar}
       />
-      <TrajectoryChart s0={s0} i0={i0} prob={prob} finalSizes={selectedBars} />
+      <TrajectoryChart trajectories={trajectories} highlight={highlightedBar} />
     </>
   );
 }
