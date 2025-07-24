@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "build:wasm": "wasm-pack build --target web",
-    "dev": "npm run build:wasm && vite",
-    "build": "npm run build:wasm && tsc && vite build",
-    "check": "npm run build && prettier frontend --check",
-    "format": "npm run build && prettier frontend -w",
+    "dev": "pnpm run build:wasm && vite",
+    "build": "pnpm run build:wasm && tsc && vite build",
+    "check": "prettier frontend --check",
+    "format": "prettier frontend -w",
     "preview": "vite preview"
   },
   "dependencies": {
