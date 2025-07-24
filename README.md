@@ -6,7 +6,22 @@ A Rust implementation of <https://github.com/cdcgov/reedfrost>
 
 ## Getting started
 
-TBD
+### System dependencies
+
+- [Rust](https://www.rust-lang.org/tools/install)
+- Install [node](https://nodejs.org/en/download)
+- Install [pnpm](https://pnpm.io/installation#on-posix-systems)
+
+### Package dependencies
+
+- `pnpm i`
+
+### Checks
+
+- Backend/model/Rust tests: `cargo test`
+- Frontend tests: `pnpm run test`
+- Compile the model to Web Assembly: `pnpm run wasm`
+- Run the frontend: `pnpm run dev`
 
 ## Project admins
 

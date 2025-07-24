@@ -11,8 +11,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Install wasm-pack
-        run: cargo install wasm-pack
       - name: Install frontend dependencies
         uses: ./.github/actions/frontend-setup
       - uses: actions/setup-python@v5

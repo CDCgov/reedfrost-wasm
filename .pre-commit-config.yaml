@@ -38,9 +38,9 @@ repos:
         args: ["--"]
         language: system
         types: [rust]
-      - id: frontend
-        name: frontend
+      - id: frontend-check
+        name: frontend-check
+        description: Check frontend formatting
         pass_filenames: false
         language: system
-        description: Run frontend formatting
-        entry: npm run format
+        entry: pnpm run check
