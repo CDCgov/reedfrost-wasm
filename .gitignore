@@ -5,3 +5,5 @@ dist
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+pnpm-workspace.yaml

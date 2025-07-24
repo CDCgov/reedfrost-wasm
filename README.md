@@ -12,11 +12,14 @@ A Rust implementation of <https://github.com/cdcgov/reedfrost>
 - Install [node](https://nodejs.org/en/download)
 - Install [pnpm](https://pnpm.io/installation#on-posix-systems)
 
-- Install wasm-pack: `pnpm install wasm-pack`
-- Run model tests: `cargo test`
-- Install frontend: `pnpm install`
-  - Because of platform differences, you may need to delete `node_modules` and `package-lock.json` and run `pnpm install` again: `rm -rf package-lock.json node_modules/ && pnpm install`
-- Run frontend tests: `pnpm run test`
+### Package dependencies
+
+- `pnpm i`
+
+### Checks
+
+- Backend/model/Rust tests: `cargo test`
+- Frontend tests: `pnpm run test`
 - Compile the model to Web Assembly: `pnpm run wasm`
 - Run the frontend: `pnpm run dev`
 
