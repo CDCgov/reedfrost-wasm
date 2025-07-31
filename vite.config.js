@@ -4,6 +4,7 @@ import path from "node:path";
 
 export default defineConfig({
   plugins: [react()],
+  base: "",
   root: path.resolve(import.meta.dirname, "frontend"),
   server: {
     port: 7777,
