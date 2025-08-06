@@ -143,16 +143,16 @@ function Simulation() {
   const [prob, setProb] = useState<number>(0.1);
   const [highlightedBar, setHighlightedBar] = useState<number | null>(null);
 
-  const trajectories = drawTrajectories(s0, i0, prob / 100);
+  const trajectories = drawTrajectories(s0, i0, prob);
 
   return (
     <>
       <Typography variant="h2">Parameters</Typography>
-      <PercentSlider name="Probability" value={prob} setterFunc={setProb} />
+      <PercentSlider name="Probability" value={prob} setValue={setProb} />
       <Slider
         name="Initial S"
         value={s0}
-        setterFunc={setS0}
+        setValue={setS0}
         min={1}
         max={50}
         step={1}
@@ -160,7 +160,7 @@ function Simulation() {
       <Slider
         name="Initial I"
         value={i0}
-        setterFunc={setI0}
+        setValue={setI0}
         min={1}
         max={10}
         step={1}
@@ -169,7 +169,7 @@ function Simulation() {
       <PMFChart
         s0={s0}
         i0={i0}
-        prob={prob / 100}
+        prob={prob}
         highlightedBar={highlightedBar}
         setHighlightedBar={setHighlightedBar}
       />

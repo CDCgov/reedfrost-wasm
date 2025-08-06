@@ -22,7 +22,7 @@
 }
 
 body {
-  margin: 0; /* or 24px? */
+  margin: 10px; /* or 24px? */
   font-size: 1.6rem;
   display: flex;
   /* place-items: center; */
