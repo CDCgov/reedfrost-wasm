@@ -33,7 +33,11 @@ function PMFChart({
     setHighlightedBar(value);
   }
 
-  let result: { s_inf: number; cum_i_max: number; pmf: number }[] = [];
+  let result: {
+    s_inf: number;
+    cum_i_max: number;
+    pmf: number;
+  }[] = [];
   for (let k = 0; k <= s0; k++) {
     result.push({
       s_inf: k,
@@ -52,11 +56,11 @@ function PMFChart({
         {
           label: "Total no. infections",
           dataKey: "cum_i_max",
-          // Highlighted bar is red; others are default color
           colorMap: {
             type: "ordinal",
-            values: highlightedBar !== null ? [highlightedBar] : [],
-            colors: ["red"],
+            colors: result.map((_, i) =>
+              highlightedBar === i + 1 ? "red" : "black",
+            ),
           },
         },
       ]}
