@@ -33,4 +33,4 @@ jobs:
       - name: Build app
         run: pnpm run build
       - name: Run vitest
-        run: pnpm test
+        run: pnpm test --no-watch

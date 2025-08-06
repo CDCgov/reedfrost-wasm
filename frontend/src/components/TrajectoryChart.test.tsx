@@ -36,8 +36,6 @@ test("pivot trajectories", () => {
     ["2|2", [0]],
   ]);
 
-  console.log(pivotTrajectories(trajectories));
-
   expect(pivotTrajectories(trajectories)).toEqual(expected);
 });
 
