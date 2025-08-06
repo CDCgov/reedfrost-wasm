@@ -1,14 +1,14 @@
 import { LineChart } from "@mui/x-charts/LineChart";
 import { trajectory } from "@wasm/reedfrost";
 import type { LineSeriesType } from "@mui/x-charts";
-import _, { isUndefined, times, values } from "lodash";
+import _, { isUndefined } from "lodash";
 
 export function TrajectoryChart({
   s0,
   i0,
   prob,
   highlight,
-  jitterSize = 0.8,
+  jitterSize = 1.0,
 }: {
   s0: number;
   i0: number;
@@ -39,6 +39,11 @@ export function TrajectoryChart({
       series={series}
       slotProps={{ tooltip: { trigger: "none" } }}
       height={500}
+      sx={{
+        "& .MuiLineElement-root": {
+          strokeWidth: 1.0,
+        },
+      }}
     />
   );
 }
