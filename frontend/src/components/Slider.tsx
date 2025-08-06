@@ -28,6 +28,30 @@ const StyledMuiSlider = styled(MuiSlider)({
   },
 });
 
+/**
+ * Slider component that allows users to select a value within a specified range.
+ *
+ * This component distinguishes:
+ * - "stored value": the value put into state with setValue
+ * - "display value": the value shown in the slider, which is transform(value)
+ * - "formatted value": the string value shows for min, max, and current value
+ *
+ * E.g., a percent slider has a stored value in [0, 1], a display value in [0, 100],
+ * and a formatted value like "42%". The transform multiplies by 100, the
+ * inverse transform divides by 100.
+ *
+ * @param {Object} props - properties for the slider
+ * @param {string} props.name - displayed above the slider
+ * @param {number} props.value - current value
+ * @param {function} props.setValue - function to update the value
+ * @param {number} props.min - minimum value
+ * @param {number} props.max - maximum value
+ * @param {number} props.step - step size
+ * @param {function} [props.format] - function from value to string for display of
+ *   current, min, and max values
+ * @param {function} [props.transform] - function from stored value to display value
+ * @param {function} [props.inverseTransform] - function from display value to stored value
+ */
 type SliderProps = {
   name: string;
   value: number;
