@@ -1,0 +1,23 @@
+.app-container {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  gap: 5px;
+}
+
+.sidebar {
+  flex: 25%;
+  border: 1px solid gray;
+  padding: 10px;
+  /* margin: 5px; */
+  margin-bottom: auto;
+}
+
+.results {
+  flex: 70%;
+  border: 1px solid gray;
+  padding: 10px;
+  margin-bottom: auto;
+  /* margin: 5px; */
+  /* margin: auto; */
+}
