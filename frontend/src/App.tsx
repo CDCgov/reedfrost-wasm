@@ -1,8 +1,8 @@
-import { pmf, trajectory } from "@wasm/reedfrost";
+import { pmf } from "@wasm/reedfrost";
 import { useState } from "react";
 import { BarChart } from "@mui/x-charts/BarChart";
-import { LineChart } from "@mui/x-charts/LineChart";
-import { Slider, PercentSlider } from "./components/Slider";
+import { Slider, PercentSlider } from "@/components/Slider";
+import { TrajectoryChart } from "@/components/TrajectoryChart";
 import "./App.css";
 
 function PMFChart({
@@ -33,7 +33,11 @@ function PMFChart({
     setHighlightedBar(value);
   }
 
-  let result: { s_inf: number; cum_i_max: number; pmf: number }[] = [];
+  let result: {
+    s_inf: number;
+    cum_i_max: number;
+    pmf: number;
+  }[] = [];
   for (let k = 0; k <= s0; k++) {
     result.push({
       s_inf: k,
@@ -52,11 +56,11 @@ function PMFChart({
         {
           label: "Total no. infections",
           dataKey: "cum_i_max",
-          // Highlighted bar is red; others are default color
           colorMap: {
             type: "ordinal",
-            values: highlightedBar !== null ? [highlightedBar] : [],
-            colors: ["red"],
+            colors: result.map((_, i) =>
+              highlightedBar === i + 1 ? "red" : "black",
+            ),
           },
         },
       ]}
@@ -73,77 +77,11 @@ function PMFChart({
   );
 }
 
-function TrajectoryChart({
-  trajectories,
-  highlight,
-}: {
-  trajectories: any[];
-  highlight: number | null;
-}) {
-  const series = trajectories.map((trajectory) => ({
-    ...trajectory,
-    color:
-      highlight !== null &&
-      trajectory.raw_data[trajectory.raw_data.length - 1] === highlight
-        ? "red"
-        : "black",
-  }));
-
-  return (
-    <LineChart
-      series={series}
-      slotProps={{ tooltip: { trigger: "none" } }}
-      height={500}
-    />
-  );
-}
-
-function drawTrajectories(
-  s0: number,
-  i0: number,
-  prob: number,
-  jitter: number = 0.25,
-): object[] {
-  let seed = 44;
-  let n_trajectories = 100;
-
-  let jitter_seed = 44;
-
-  function jittered(x: number): number {
-    var y = Math.PI * (x ^ jitter_seed++);
-    y -= Math.floor(y);
-    return x + (y - 0.5) * jitter;
-  }
-
-  let trajectories: object[] = [];
-  for (let i = 0; i < n_trajectories; i++) {
-    seed += 1;
-    let incidentTrajectory = Array.from(trajectory(s0, i0, prob, seed));
-
-    let x = 0;
-    let cumTrajectory = incidentTrajectory.map((y) => {
-      x += y;
-      return x;
-    });
-
-    trajectories.push({
-      raw_data: cumTrajectory,
-      data: cumTrajectory.map((x) => jittered(x)),
-      curve: "linear",
-      showMark: false,
-    });
-  }
-
-  return trajectories;
-}
-
 export function App() {
   const [s0, setS0] = useState<number>(10);
   const [i0, setI0] = useState<number>(1);
   const [prob, setProb] = useState<number>(0.1);
   const [highlightedBar, setHighlightedBar] = useState<number | null>(null);
-
-  const trajectories = drawTrajectories(s0, i0, prob);
 
   return (
     <div className="app-container">
@@ -177,7 +115,9 @@ export function App() {
           setHighlightedBar={setHighlightedBar}
         />
         <TrajectoryChart
-          trajectories={trajectories}
+          s0={s0}
+          i0={i0}
+          prob={prob}
           highlight={highlightedBar}
         />
       </div>

@@ -9,13 +9,16 @@
     "build": "pnpm run build:wasm && tsc && vite build",
     "check": "prettier frontend --check",
     "format": "prettier frontend -w",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/material": "^7.2.0",
     "@mui/x-charts": "^8.9.2",
+    "@types/lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "wasm-pack": "^0.13.1"
@@ -27,6 +30,7 @@
     "globals": "^16.3.0",
     "prettier": "^3.6.2",
     "typescript": "~5.8.3",
-    "vite": "^7.0.6"
+    "vite": "^7.0.6",
+    "vitest": "^3.2.4"
   }
 }
