@@ -3,7 +3,6 @@ import { useState } from "react";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { Slider, PercentSlider } from "./components/Slider";
-import Typography from "@mui/material/Typography";
 import "./App.css";
 
 function PMFChart({

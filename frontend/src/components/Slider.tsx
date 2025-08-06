@@ -55,7 +55,7 @@ const StyledMuiSlider = styled(MuiSlider)({
 type SliderProps = {
   name: string;
   value: number | number[];
-  setValue: (value: number | number[]) => void;
+  setValue: ((value: number) => void) | ((value: number[]) => void);
   min: number;
   max: number;
   step: number;
