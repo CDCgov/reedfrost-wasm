@@ -54,14 +54,14 @@ const StyledMuiSlider = styled(MuiSlider)({
  */
 type SliderProps = {
   name: string;
-  value: number;
+  value: number | number[];
   setValue: (value: number | number[]) => void;
   min: number;
   max: number;
   step: number;
-  format?: (value: number | number[]) => string;
-  transform?: (value: number | number[]) => number | number[];
-  inverseTransform?: (value: number | number[]) => number | number[];
+  format?: (value: number) => string;
+  transform?: (value: number) => number;
+  inverseTransform?: (value: number) => number;
 };
 
 export function Slider({
@@ -88,13 +88,14 @@ export function Slider({
         }}
       >
         <span>{format(min)}</span>
-        <span>{format(value)}</span>
+        <span>{lift(format)(value)}</span>
         <span>{format(max)}</span>
       </div>
       <StyledMuiSlider
-        value={transform(value)}
-        onChange={(_, newValue) => {
-          setValue(inverseTransform(newValue));
+        value={lift(transform)(value)}
+        onChange={(_, newDisplayValue) => {
+          const newValue = lift(inverseTransform)(newDisplayValue);
+          setValue(newValue);
         }}
         min={transform(min)}
         max={transform(max)}
@@ -122,4 +123,14 @@ export function PercentSlider(props: PercentSliderProps) {
       format={(x) => `${Math.round(x * 100)}%`}
     />
   );
+}
+
+function lift<T>(f: (x: number) => T): (x: number | number[]) => T | T[] {
+  return (x) => {
+    if (Array.isArray(x)) {
+      return x.map(f);
+    } else {
+      return f(x);
+    }
+  };
 }
