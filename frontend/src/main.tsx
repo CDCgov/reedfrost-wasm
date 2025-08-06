@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { App } from "@/App.tsx";
 import initWasm from "@wasm/reedfrost";
 
-import "@/styles/main.css";
+import "@/main.css";
 
 initWasm()
   .then(() => {

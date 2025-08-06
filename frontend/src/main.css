@@ -24,7 +24,7 @@
 body {
   margin: 10px; /* or 24px? */
   font-size: 1.6rem;
-  display: flex;
+  /* display: flex; */
   /* place-items: center; */
   /* min-width: 320px; */
   /* min-height: 100vh; */

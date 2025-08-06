@@ -4,6 +4,7 @@ import { BarChart } from "@mui/x-charts/BarChart";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { Slider, PercentSlider } from "./components/Slider";
 import Typography from "@mui/material/Typography";
+import "./App.css";
 
 function PMFChart({
   s0,
@@ -137,7 +138,7 @@ function drawTrajectories(
   return trajectories;
 }
 
-function Simulation() {
+export function App() {
   const [s0, setS0] = useState<number>(10);
   const [i0, setI0] = useState<number>(1);
   const [prob, setProb] = useState<number>(0.1);
@@ -146,44 +147,41 @@ function Simulation() {
   const trajectories = drawTrajectories(s0, i0, prob);
 
   return (
-    <>
-      <Typography variant="h2">Parameters</Typography>
-      <PercentSlider name="Probability" value={prob} setValue={setProb} />
-      <Slider
-        name="Initial S"
-        value={s0}
-        setValue={setS0}
-        min={1}
-        max={50}
-        step={1}
-      />
-      <Slider
-        name="Initial I"
-        value={i0}
-        setValue={setI0}
-        min={1}
-        max={10}
-        step={1}
-      />
-      <Typography variant="h2">Result</Typography>
-      <PMFChart
-        s0={s0}
-        i0={i0}
-        prob={prob}
-        highlightedBar={highlightedBar}
-        setHighlightedBar={setHighlightedBar}
-      />
-      <TrajectoryChart trajectories={trajectories} highlight={highlightedBar} />
-    </>
-  );
-}
-
-export function App() {
-  return (
-    <>
-      <Typography variant="h1">Simulation</Typography>
-      <Simulation />
-      <Typography variant="body1">End of app</Typography>
-    </>
+    <div className="app-container">
+      <div className="sidebar">
+        <h2>Parameters</h2>
+        <PercentSlider name="Probability" value={prob} setValue={setProb} />
+        <Slider
+          name="Initial S"
+          value={s0}
+          setValue={setS0}
+          min={1}
+          max={50}
+          step={1}
+        />
+        <Slider
+          name="Initial I"
+          value={i0}
+          setValue={setI0}
+          min={1}
+          max={10}
+          step={1}
+        />
+      </div>
+      <div className="results">
+        <h2>Results</h2>
+        <PMFChart
+          s0={s0}
+          i0={i0}
+          prob={prob}
+          highlightedBar={highlightedBar}
+          setHighlightedBar={setHighlightedBar}
+        />
+        <TrajectoryChart
+          trajectories={trajectories}
+          highlight={highlightedBar}
+        />
+      </div>
+    </div>
   );
 }
